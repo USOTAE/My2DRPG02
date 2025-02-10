@@ -76,6 +76,7 @@
     <Compile Include="Assets\Scripts\ProjectBase\UI\UIManager.cs" />
     <Compile Include="Assets\Scripts\ProjectBase\Event\EventCenter.cs" />
     <Compile Include="Assets\Scripts\ProjectBase\Base\BaseManager.cs" />
+    <Compile Include="Assets\Scripts\Game\Object\PlayerObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
