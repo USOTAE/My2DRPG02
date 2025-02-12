@@ -65,6 +65,7 @@
     <Compile Include="Assets\Scripts\ProjectBase\Music\MusicMgr.cs" />
     <Compile Include="Assets\Scripts\ProjectBase\Input\InputMgr.cs" />
     <Compile Include="Assets\Scripts\ProjectBase\Mono\MonoController.cs" />
+    <Compile Include="Assets\Scripts\Game\Object\RoleObject.cs" />
     <Compile Include="Assets\Scripts\ProjectBase\AStar\AStarNode.cs" />
     <Compile Include="Assets\Scripts\ProjectBase\Base\SingletonMono.cs" />
     <Compile Include="Assets\Scripts\ProjectBase\Base\SingletonAutoMono.cs" />

@@ -3,16 +3,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerObject : MonoBehaviour
+public class PlayerObject : RoleObject
 {
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+        //开启输入控制
+        InputMgr.GetInstance().StartOrEndCheck(true);
+        //获取输入权限
         GetController();
     }
 
-    void Update()
+    protected override void Update()
     {
-
+        base.Update();
     }
 
     /// <summary>
@@ -46,11 +50,13 @@ public class PlayerObject : MonoBehaviour
     {
         //x 就会是 -1 0 1三个值的数
         //按A为-1 不按为0 按D为1
+        //获取横向移动输入
+        moveDir.x = x;
     }
 
     private void CheckY(float y)
     {
-        
+        moveDir.y = y;
     }
 
     /// <summary>
@@ -62,12 +68,16 @@ public class PlayerObject : MonoBehaviour
         switch(key)
         {
             case KeyCode.J:
+                Debug.Log("J");
                 break;
             case KeyCode.K:
+                Debug.Log("K");
                 break;
             case KeyCode.L:
+                Debug.Log("L");
                 break;
             case KeyCode.Space:
+                Debug.Log("Space");
                 break;
         }
     }
