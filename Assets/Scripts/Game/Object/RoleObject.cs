@@ -17,12 +17,15 @@ public class RoleObject : MonoBehaviour
     protected SpriteRenderer roleSprite;
     //角色animator
     protected Animator roleAnimator;
+    //身体子对象
+    protected Transform bodyTransform;
 
     protected virtual void Awake()
     {
         //多个子对象时先找到目标子对象
-        roleSprite = this.transform.Find("Role").GetComponentInChildren<SpriteRenderer>();
-        roleAnimator = this.transform.Find("Role").GetComponentInChildren<Animator>();
+        bodyTransform = this.transform.Find("Role");
+        roleSprite = bodyTransform.GetComponentInChildren<SpriteRenderer>();
+        roleAnimator = this.GetComponentInChildren<Animator>();
     }
 
     protected virtual void Update()

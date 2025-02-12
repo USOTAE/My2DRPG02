@@ -5,9 +5,17 @@ using UnityEngine;
 
 public class PlayerObject : RoleObject
 {
+    //玩家跳跃初速度
+    public float jumpSpeed = 10;
+    //重力加速度
+    public float gSpeed = 9.8f;
+    //当前的跳跃速度
+    private float nowJumpSpeed;
+
     protected override void Awake()
     {
         base.Awake();
+
         //开启输入控制
         InputMgr.GetInstance().StartOrEndCheck(true);
         //获取输入权限
@@ -17,6 +25,43 @@ public class PlayerObject : RoleObject
     protected override void Update()
     {
         base.Update();
+
+        //处理 跳跃逻辑
+        //不是在地面上 就可以跳跃
+        if(roleAnimator.GetBool("isGround") == false)
+        {
+            
+            //跳跃身体对象
+            bodyTransform.Translate(Vector2.up * nowJumpSpeed * Time.deltaTime);
+            //竖直上抛 下落逻辑 速度变化
+            //v = v - gt
+            nowJumpSpeed -= gSpeed * Time.deltaTime;
+
+            //我们判断高度是否小于等于0 即可判断是否落地
+            //注意 一定不是判断 == 0 因为是 - 帧间隔时间*速度 大部分情况都不会刚刚等于0
+            //注意使用的是localPosition 了解Position和localPosition
+            if (bodyTransform.localPosition.y <= 0)
+            {
+                //放置到地面
+                bodyTransform.localPosition = Vector2.zero;
+                //改变地面标识
+                roleAnimator.SetBool("isGround", true);
+            }
+        }
+    }
+
+    private void Jump()
+    {
+        //在地面是true 才来进行跳跃
+        //之后再添加跳跃的约束条件
+        if (roleAnimator.GetBool("isGround"))
+        {
+            nowJumpSpeed = jumpSpeed;
+            //切换动作
+            roleAnimator.SetTrigger("jumpTrigger");
+            //切换在地面的状态
+            roleAnimator.SetBool("isGround", false);
+        }
     }
 
     /// <summary>
@@ -78,6 +123,7 @@ public class PlayerObject : RoleObject
                 break;
             case KeyCode.Space:
                 Debug.Log("Space");
+                Jump();
                 break;
         }
     }
