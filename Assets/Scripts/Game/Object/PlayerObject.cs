@@ -65,6 +65,18 @@ public class PlayerObject : RoleObject
     }
 
     /// <summary>
+    /// 跳跃攻击
+    /// </summary>
+    private void JumpAtk()
+    {
+        //如果当前处于跳跃攻击状态 就不要再触发跳跃攻击
+        if (roleAnimator.GetCurrentAnimatorStateInfo(1).IsName("JumpAtk") == false)
+        {
+            roleAnimator.SetTrigger("jumpAtkTrigger");
+        }
+    }
+
+    /// <summary>
     /// 给予控制权
     /// </summary>
     public void GetController()
@@ -113,10 +125,19 @@ public class PlayerObject : RoleObject
         switch(key)
         {
             case KeyCode.J:
-                Debug.Log("J");
+                //手部攻击
+                //如果不在地面 处理跳跃攻击逻辑
+                if (roleAnimator.GetBool("isGround") == false)
+                {
+                    JumpAtk();
+                }
                 break;
             case KeyCode.K:
-                Debug.Log("K");
+                //腿部攻击
+                if (roleAnimator.GetBool("isGround") == false)
+                {
+                    JumpAtk();
+                }
                 break;
             case KeyCode.L:
                 Debug.Log("L");

@@ -345,7 +345,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 3
-  jumpSpeed: 10
+  jumpSpeed: 11
   gSpeed: 50
 --- !u!1 &1204824075
 GameObject:
