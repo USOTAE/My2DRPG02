@@ -77,6 +77,14 @@ public class PlayerObject : RoleObject
     }
 
     /// <summary>
+    /// 手部攻击
+    /// </summary>
+    private void Atk()
+    {
+        roleAnimator.SetTrigger("atk1Trigger");
+    }
+
+    /// <summary>
     /// 给予控制权
     /// </summary>
     public void GetController()
@@ -128,8 +136,12 @@ public class PlayerObject : RoleObject
                 //手部攻击
                 //如果不在地面 处理跳跃攻击逻辑
                 if (roleAnimator.GetBool("isGround") == false)
-                {
                     JumpAtk();
+                //在地面上 能够攻击
+                //以后如果还有限制条件再加
+                else
+                {
+                    Atk();
                 }
                 break;
             case KeyCode.K:
