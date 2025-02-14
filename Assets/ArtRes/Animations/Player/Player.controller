@@ -375,9 +375,9 @@ AnimatorStateTransition:
   m_PrefabAsset: {fileID: 0}
   m_Name: 
   m_Conditions:
-  - m_ConditionMode: 1
-    m_ConditionEvent: atk1Trigger
-    m_EventTreshold: 0
+  - m_ConditionMode: 6
+    m_ConditionEvent: atkCount
+    m_EventTreshold: 3
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 5662650472637692829}
   m_Solo: 0
@@ -606,9 +606,9 @@ AnimatorStateTransition:
   m_PrefabAsset: {fileID: 0}
   m_Name: 
   m_Conditions:
-  - m_ConditionMode: 1
-    m_ConditionEvent: atk1Trigger
-    m_EventTreshold: 0
+  - m_ConditionMode: 6
+    m_ConditionEvent: atkCount
+    m_EventTreshold: 2
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 2151511022997536115}
   m_Solo: 0
@@ -709,9 +709,9 @@ AnimatorStateTransition:
   m_PrefabAsset: {fileID: 0}
   m_Name: 
   m_Conditions:
-  - m_ConditionMode: 1
-    m_ConditionEvent: atk1Trigger
-    m_EventTreshold: 0
+  - m_ConditionMode: 6
+    m_ConditionEvent: atkCount
+    m_EventTreshold: 1
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -4062795535911902620}
   m_Solo: 0

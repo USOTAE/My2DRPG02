@@ -11,6 +11,8 @@ public class PlayerObject : RoleObject
     public float gSpeed = 9.8f;
     //当前的跳跃速度
     private float nowJumpSpeed;
+    //攻击连招计数
+    private int atkCount = 0;
 
     protected override void Awake()
     {
@@ -81,7 +83,35 @@ public class PlayerObject : RoleObject
     /// </summary>
     private void Atk()
     {
-        roleAnimator.SetTrigger("atk1Trigger");
+        //方式1 触发条件去处理
+        //roleAnimator.SetTrigger("atk1Trigger");
+
+        //方式2 使用int累加来处理
+        //让计数清零
+        //1 延迟函数
+        //2 自己写计时逻辑(自己实现 延时逻辑 延时管理器)
+        //3 通过协同程序去计时
+
+        //首先停止延迟
+        CancelInvoke(nameof(DelayClearAtkCount));
+        AnimatorStateInfo stateInfo = roleAnimator.GetCurrentAnimatorStateInfo(1);
+        //解决动画时间小于计数清零时间导致重复播动画的问题
+        if (stateInfo.IsName("Null"))
+            atkCount = 1;
+        else if (stateInfo.IsName("Atk1"))
+            atkCount = 2;
+        else if (stateInfo.IsName("Atk2"))
+            atkCount = 3;
+        else
+            atkCount = 0;
+        roleAnimator.SetInteger("atkCount", atkCount);
+        Invoke(nameof(DelayClearAtkCount), .3f);
+    }
+
+    private void DelayClearAtkCount()
+    {
+        atkCount = 0;
+        roleAnimator.SetInteger("atkCount", atkCount);
     }
 
     /// <summary>
