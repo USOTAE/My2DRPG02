@@ -83,8 +83,11 @@ public class PlayerObject : RoleObject
     /// </summary>
     private void Atk()
     {
+        //为了让其真正的计时点击连招 使用两个条件来控制
+        //目的是避免点击事件间隔和动画时间过短导致的重复播放问题
+
         //方式1 触发条件去处理
-        //roleAnimator.SetTrigger("atk1Trigger");
+        roleAnimator.SetTrigger("atk1Trigger");
 
         //方式2 使用int累加来处理
         //让计数清零
@@ -94,16 +97,7 @@ public class PlayerObject : RoleObject
 
         //首先停止延迟
         CancelInvoke(nameof(DelayClearAtkCount));
-        AnimatorStateInfo stateInfo = roleAnimator.GetCurrentAnimatorStateInfo(1);
-        //解决动画时间小于计数清零时间导致重复播动画的问题
-        if (stateInfo.IsName("Null"))
-            atkCount = 1;
-        else if (stateInfo.IsName("Atk1"))
-            atkCount = 2;
-        else if (stateInfo.IsName("Atk2"))
-            atkCount = 3;
-        else
-            atkCount = 0;
+        atkCount++;
         roleAnimator.SetInteger("atkCount", atkCount);
         Invoke(nameof(DelayClearAtkCount), .3f);
     }
