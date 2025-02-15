@@ -30,27 +30,24 @@ public class RoleObject : MonoBehaviour
 
     protected virtual void Update()
     {
-        //角色移动逻辑
-        this.transform.Translate(moveDir.normalized * speed * Time.deltaTime);
-        //控制玩家转向 不考虑0 解决松开按键后的强制转向问题
-        if (moveDir.x > 0)
+        //在移动前加判断 满足移动条件才去移动
+        if (CanMoving)
         {
-            roleSprite.flipX = false;
-        }
-        else if (moveDir.x < 0)
-        {
-            roleSprite.flipX = true;
+            //角色移动逻辑
+            this.transform.Translate(moveDir.normalized * speed * Time.deltaTime);
+            //控制玩家转向 不考虑0 解决松开按键后的强制转向问题
+            if (moveDir.x > 0)
+                roleSprite.flipX = false;
+            else if (moveDir.x < 0)
+                roleSprite.flipX = true;
         }
 
         //是否移动
-        if(moveDir == Vector2.zero)
-        {
+        if (moveDir == Vector2.zero)
             ChangeAction(E_Action_Type.Idle);
-        }
         else
-        {
             ChangeAction(E_Action_Type.Move);
-        }
+
     }
 
     /// <summary>
@@ -93,6 +90,25 @@ public class RoleObject : MonoBehaviour
                 break;
             default:
                 break;
+        }
+    }
+
+    protected bool CanMoving
+    {
+        get
+        {
+            //去得到状态机中两层的状态 判断是否是可以移动的状态
+            AnimatorStateInfo layerInfo1 = roleAnimator.GetCurrentAnimatorStateInfo(0);
+            AnimatorStateInfo layerInfo2 = roleAnimator.GetCurrentAnimatorStateInfo(1);
+            if (layerInfo2.IsName("Atk1") ||
+                layerInfo2.IsName("Atk2") ||
+                layerInfo2.IsName("Atk3") ||
+                layerInfo2.IsName("FootAtk1") ||
+                layerInfo2.IsName("FootAtk2") ||
+                layerInfo2.IsName("Defend"))
+                return false;
+
+            return true;
         }
     }
 }

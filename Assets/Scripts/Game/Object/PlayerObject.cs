@@ -13,6 +13,8 @@ public class PlayerObject : RoleObject
     private float nowJumpSpeed;
     //攻击连招计数
     private int atkCount = 0;
+    //腿部攻击连招计数
+    private int footAtkCount = 0;
 
     protected override void Awake()
     {
@@ -56,7 +58,8 @@ public class PlayerObject : RoleObject
     {
         //在地面是true 才来进行跳跃
         //之后再添加跳跃的约束条件
-        if (roleAnimator.GetBool("isGround"))
+        if (roleAnimator.GetBool("isGround") &&
+            roleAnimator.GetBool("isDefend")==false)
         {
             nowJumpSpeed = jumpSpeed;
             //切换动作
@@ -83,6 +86,14 @@ public class PlayerObject : RoleObject
     /// </summary>
     private void Atk()
     {
+        //判断当前能不能执行攻击行为
+        //这里判断有几种方式
+        //1 根据状态判断 
+        //2 根据条件判断
+        //不满足攻击的条件直接返回
+        if (roleAnimator.GetBool("isDefend"))
+            return;
+
         //为了让其真正的计时点击连招 使用两个条件来控制
         //目的是避免点击事件间隔和动画时间过短导致的重复播放问题
 
@@ -95,11 +106,44 @@ public class PlayerObject : RoleObject
         //2 自己写计时逻辑(自己实现 延时逻辑 延时管理器)
         //3 通过协同程序去计时
 
-        //首先停止延迟
+        //每次按键 取消上一次延迟函数
         CancelInvoke(nameof(DelayClearAtkCount));
+        //手部攻击连招计数
         atkCount++;
         roleAnimator.SetInteger("atkCount", atkCount);
+        //连招计数延迟清零
         Invoke(nameof(DelayClearAtkCount), .3f);
+    }
+
+    /// <summary>
+    /// 腿部攻击 参考手部攻击
+    /// </summary>
+    private void FootAtk()
+    {
+        if (roleAnimator.GetBool("isDefend"))
+            return;
+
+        roleAnimator.SetTrigger("footAtkTrigger");
+
+        CancelInvoke(nameof(DelayClearFootAtkCount));
+        footAtkCount++;
+        roleAnimator.SetInteger("footAtkCount", footAtkCount);
+        Invoke(nameof(DelayClearFootAtkCount), .3f);
+    }
+
+    /// <summary>
+    /// 是否格挡
+    /// </summary>
+    /// <param name="isDefend"></param>
+    private void Defend(bool isDefend)
+    {
+        roleAnimator.SetBool("isDefend", isDefend);
+    }
+
+    private void DelayClearFootAtkCount()
+    {
+        footAtkCount = 0;
+        roleAnimator.SetInteger("footAtkCount", footAtkCount);
     }
 
     private void DelayClearAtkCount()
@@ -120,6 +164,8 @@ public class PlayerObject : RoleObject
 
         //监听按键按下
         EventCenter.GetInstance().AddEventListener<KeyCode>("SomeKeyDown", CheckKeyDown);
+        //监听按键抬起
+        EventCenter.GetInstance().AddEventListener<KeyCode>("SomeKeyUp", CheckKeyUp);
     }
 
     /// <summary>
@@ -133,6 +179,7 @@ public class PlayerObject : RoleObject
         EventCenter.GetInstance().RemoveEventListener<float>("Vertical", CheckY);
         //监听按键按下
         EventCenter.GetInstance().RemoveEventListener<KeyCode>("SomeKeyDown", CheckKeyDown);
+        EventCenter.GetInstance().RemoveEventListener<KeyCode>("SomeKeyUp", CheckKeyUp);
     }
 
     private void CheckX(float x)
@@ -164,19 +211,18 @@ public class PlayerObject : RoleObject
                 //在地面上 能够攻击
                 //以后如果还有限制条件再加
                 else
-                {
                     Atk();
-                }
                 break;
             case KeyCode.K:
                 //腿部攻击
                 if (roleAnimator.GetBool("isGround") == false)
-                {
                     JumpAtk();
-                }
+                else
+                    FootAtk();
                 break;
             case KeyCode.L:
-                Debug.Log("L");
+                //格挡
+                Defend(true);
                 break;
             case KeyCode.Space:
                 Debug.Log("Space");
@@ -184,6 +230,17 @@ public class PlayerObject : RoleObject
                 break;
         }
     }
+
+    private void CheckKeyUp(KeyCode key)
+    {
+        switch (key)
+        {
+            case KeyCode.L:
+                Defend(false);
+                break;
+        }
+    }
+
 
     private void OnDestroy()
     {
