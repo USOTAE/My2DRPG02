@@ -54,12 +54,31 @@ public class PlayerObject : RoleObject
         }
     }
 
+    /// <summary>
+    /// 受伤方法
+    /// </summary>
+    public void Wound(float hitTime)
+    {
+        //如果处于受伤状态 又受伤 需要把上一次延时函数取消
+        CancelInvoke(nameof(DelayClearHit));
+        roleAnimator.SetBool("isHit", true);
+        //延时函数 处理过一段时间结束受伤状态
+        Invoke(nameof(DelayClearHit), hitTime);
+    }
+
+    private void DelayClearHit()
+    {
+        roleAnimator.SetBool("isHit", false);
+    }
+
     private void Jump()
     {
         //在地面是true 才来进行跳跃
         //之后再添加跳跃的约束条件
         if (roleAnimator.GetBool("isGround") &&
-            roleAnimator.GetBool("isDefend")==false)
+            roleAnimator.GetBool("isDefend") == false &&
+            roleAnimator.GetBool("isHit") == false &&
+            IsAtkState == false)
         {
             nowJumpSpeed = jumpSpeed;
             //切换动作
@@ -227,6 +246,11 @@ public class PlayerObject : RoleObject
             case KeyCode.Space:
                 Debug.Log("Space");
                 Jump();
+                break;
+            //测试按键
+            case KeyCode.B:
+                //Wound(.2f);
+                Wound(1f);
                 break;
         }
     }

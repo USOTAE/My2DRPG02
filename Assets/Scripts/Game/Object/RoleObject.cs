@@ -98,17 +98,32 @@ public class RoleObject : MonoBehaviour
         get
         {
             //去得到状态机中两层的状态 判断是否是可以移动的状态
-            AnimatorStateInfo layerInfo1 = roleAnimator.GetCurrentAnimatorStateInfo(0);
+            //AnimatorStateInfo layerInfo1 = roleAnimator.GetCurrentAnimatorStateInfo(0);
             AnimatorStateInfo layerInfo2 = roleAnimator.GetCurrentAnimatorStateInfo(1);
-            if (layerInfo2.IsName("Atk1") ||
-                layerInfo2.IsName("Atk2") ||
-                layerInfo2.IsName("Atk3") ||
-                layerInfo2.IsName("FootAtk1") ||
-                layerInfo2.IsName("FootAtk2") ||
-                layerInfo2.IsName("Defend"))
+            if (IsAtkState ||
+                layerInfo2.IsName("Defend") ||
+                layerInfo2.IsName("Hit"))
                 return false;
 
             return true;
+        }
+    }
+
+    /// <summary>
+    /// 是否是攻击状态
+    /// </summary>
+    protected bool IsAtkState
+    {
+        get
+        {
+            AnimatorStateInfo layerInfo = roleAnimator.GetCurrentAnimatorStateInfo(1);
+            if (layerInfo.IsName("Atk1") ||
+                layerInfo.IsName("Atk2") ||
+                layerInfo.IsName("Atk3") ||
+                layerInfo.IsName("FootAtk1") ||
+                layerInfo.IsName("FootAtk2"))
+                return true;
+            return false;
         }
     }
 }

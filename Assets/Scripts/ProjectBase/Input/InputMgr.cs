@@ -61,6 +61,9 @@ public class InputMgr : BaseManager<InputMgr>
         CheckKeyCode(KeyCode.K);
         CheckKeyCode(KeyCode.L);
         CheckKeyCode(KeyCode.Space);
+
+        //测试用按键
+        CheckKeyCode(KeyCode.B);
     }
 	
 }
