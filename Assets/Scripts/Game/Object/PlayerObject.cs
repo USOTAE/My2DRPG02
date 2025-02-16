@@ -9,8 +9,10 @@ public class PlayerObject : RoleObject
     public float jumpSpeed = 10;
     //重力加速度
     public float gSpeed = 9.8f;
-    //当前的跳跃速度
-    private float nowJumpSpeed;
+    //当前的Y轴速度
+    private float nowYSpeed;
+    //击退速度
+    private float nowXSpeed;
     //攻击连招计数
     private int atkCount = 0;
     //腿部攻击连招计数
@@ -36,10 +38,10 @@ public class PlayerObject : RoleObject
         {
             
             //跳跃身体对象
-            bodyTransform.Translate(Vector2.up * nowJumpSpeed * Time.deltaTime);
+            bodyTransform.Translate(Vector2.up * nowYSpeed * Time.deltaTime);
             //竖直上抛 下落逻辑 速度变化
             //v = v - gt
-            nowJumpSpeed -= gSpeed * Time.deltaTime;
+            nowYSpeed -= gSpeed * Time.deltaTime;
 
             //我们判断高度是否小于等于0 即可判断是否落地
             //注意 一定不是判断 == 0 因为是 - 帧间隔时间*速度 大部分情况都不会刚刚等于0
@@ -50,7 +52,17 @@ public class PlayerObject : RoleObject
                 bodyTransform.localPosition = Vector2.zero;
                 //改变地面标识
                 roleAnimator.SetBool("isGround", true);
+
+                //落地后 不管击退多厉害 都得停下来
+                nowXSpeed = 0;
+                //应该让他延迟站起来
+                Invoke(nameof(DelayClearHitFly), .2f);
             }
+        }
+
+        if (nowXSpeed != 0)
+        {
+            this.transform.Translate(Vector2.right * nowXSpeed * Time.deltaTime);
         }
     }
 
@@ -64,6 +76,20 @@ public class PlayerObject : RoleObject
         roleAnimator.SetBool("isHit", true);
         //延时函数 处理过一段时间结束受伤状态
         Invoke(nameof(DelayClearHit), hitTime);
+    }
+
+    /// <summary>
+    /// 击飞方法
+    /// </summary>
+    public void HitFly(float xSpeed, float ySpeed)
+    {
+
+        roleAnimator.SetBool("isHitFly", true);
+        //改变玩家不在地面
+        roleAnimator.SetBool("isGround", false);
+        //初始竖直上抛的速度
+        nowYSpeed = ySpeed;
+        nowXSpeed = xSpeed;
     }
 
     private void DelayClearHit()
@@ -80,7 +106,7 @@ public class PlayerObject : RoleObject
             roleAnimator.GetBool("isHit") == false &&
             IsAtkState == false)
         {
-            nowJumpSpeed = jumpSpeed;
+            nowYSpeed = jumpSpeed;
             //切换动作
             roleAnimator.SetTrigger("jumpTrigger");
             //切换在地面的状态
@@ -172,6 +198,14 @@ public class PlayerObject : RoleObject
     }
 
     /// <summary>
+    /// 延迟起身
+    /// </summary>
+    private void DelayClearHitFly()
+    {
+        roleAnimator.SetBool("isHitFly", false);
+    }
+
+    /// <summary>
     /// 给予控制权
     /// </summary>
     public void GetController()
@@ -250,7 +284,8 @@ public class PlayerObject : RoleObject
             //测试按键
             case KeyCode.B:
                 //Wound(.2f);
-                Wound(1f);
+                //Wound(1f);
+                HitFly(-10f,10f);
                 break;
         }
     }
