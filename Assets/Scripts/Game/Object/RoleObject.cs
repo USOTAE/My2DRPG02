@@ -65,32 +65,35 @@ public class RoleObject : MonoBehaviour
                 roleAnimator.SetBool("isMoving", true);
                 break;
             case E_Action_Type.Jump:
+                roleAnimator.SetTrigger("jumpTrigger");
                 break;
             case E_Action_Type.JumpAtk:
+                roleAnimator.SetTrigger("jumpAtkTrigger");
                 break;
-            case E_Action_Type.Atk1:
+            case E_Action_Type.Atk:
+                roleAnimator.SetTrigger("atkTrigger");
                 break;
-            case E_Action_Type.Atk2:
-                break;
-            case E_Action_Type.Atk3:
-                break;
-            case E_Action_Type.FootAtk1:
-                break;
-            case E_Action_Type.FootAtk2:
+            case E_Action_Type.FootAtk:
+                roleAnimator.SetTrigger("footAtkTrigger");
                 break;
             case E_Action_Type.Hit:
+                roleAnimator.SetBool("isHit", true);
                 break;
             case E_Action_Type.HitFly:
-                break;
-            case E_Action_Type.Throw:
-                break;
-            case E_Action_Type.Pickup:
-                break;
-            case E_Action_Type.Defend:
+                roleAnimator.SetBool("isHitFly", true);
                 break;
             default:
                 break;
         }
+    }
+
+    /// <summary>
+    /// ÇÐ»»Íæ¼ÒÊÇ·ñÔÚµØÃæ×´Ì¬
+    /// </summary>
+    /// <param name="isGround"></param>
+    protected void ChangeRoleIsGround(bool isGround)
+    {
+        roleAnimator.SetBool("isGround", isGround);
     }
 
     protected bool CanMoving
@@ -102,7 +105,10 @@ public class RoleObject : MonoBehaviour
             AnimatorStateInfo layerInfo2 = roleAnimator.GetCurrentAnimatorStateInfo(1);
             if (IsAtkState ||
                 layerInfo2.IsName("Defend") ||
-                layerInfo2.IsName("Hit"))
+                layerInfo2.IsName("Hit") ||
+                layerInfo2.IsName("HitFly") ||
+                layerInfo2.IsName("Pickup") ||
+                layerInfo2.IsName("Throw"))
                 return false;
 
             return true;
@@ -138,14 +144,11 @@ public enum E_Action_Type
     /// ÌøÔ¾¹¥»÷
     /// </summary>
     JumpAtk,
-    Atk1,
-    Atk2,
-    Atk3,
+    Atk,
     /// <summary>
     /// ÍÈ²¿¹¥»÷ ¶ÔÓ¦Kick¶¯»­
     /// </summary>
-    FootAtk1,
-    FootAtk2,
+    FootAtk,
     Hit,
     /// <summary>
     /// »÷·É

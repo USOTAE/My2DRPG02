@@ -51,12 +51,12 @@ public class PlayerObject : RoleObject
                 //放置到地面
                 bodyTransform.localPosition = Vector2.zero;
                 //改变地面标识
-                roleAnimator.SetBool("isGround", true);
+                ChangeRoleIsGround(true);
 
                 //落地后 不管击退多厉害 都得停下来
                 nowXSpeed = 0;
                 //应该让他延迟站起来
-                Invoke(nameof(DelayClearHitFly), .2f);
+                Invoke(nameof(DelayClearHitFly), 2f);
             }
         }
 
@@ -67,13 +67,30 @@ public class PlayerObject : RoleObject
     }
 
     /// <summary>
+    /// 拾取
+    /// </summary>
+    public void PickUp()
+    {
+        roleAnimator.SetTrigger("pickUpTrigger");
+    }
+
+    /// <summary>
+    /// 投掷
+    /// </summary>
+    public void Throw()
+    {
+        roleAnimator.SetTrigger("throwTrigger");
+    }
+
+    /// <summary>
     /// 受伤方法
     /// </summary>
     public void Wound(float hitTime)
     {
         //如果处于受伤状态 又受伤 需要把上一次延时函数取消
         CancelInvoke(nameof(DelayClearHit));
-        roleAnimator.SetBool("isHit", true);
+        //切换受伤动作
+        ChangeAction(E_Action_Type.Hit);
         //延时函数 处理过一段时间结束受伤状态
         Invoke(nameof(DelayClearHit), hitTime);
     }
@@ -83,10 +100,13 @@ public class PlayerObject : RoleObject
     /// </summary>
     public void HitFly(float xSpeed, float ySpeed)
     {
-
-        roleAnimator.SetBool("isHitFly", true);
+        //如果已经在击飞状态 直接返回 不能再被击飞
+        if (roleAnimator.GetBool("isHitFly"))
+            return;
+        //切换击飞动作
+        ChangeAction(E_Action_Type.HitFly);
         //改变玩家不在地面
-        roleAnimator.SetBool("isGround", false);
+        ChangeRoleIsGround(false);
         //初始竖直上抛的速度
         nowYSpeed = ySpeed;
         nowXSpeed = xSpeed;
@@ -101,16 +121,20 @@ public class PlayerObject : RoleObject
     {
         //在地面是true 才来进行跳跃
         //之后再添加跳跃的约束条件
+        AnimatorStateInfo layerInfo = roleAnimator.GetCurrentAnimatorStateInfo(1);
         if (roleAnimator.GetBool("isGround") &&
             roleAnimator.GetBool("isDefend") == false &&
             roleAnimator.GetBool("isHit") == false &&
-            IsAtkState == false)
+            roleAnimator.GetBool("isHitFly") == false &&
+            IsAtkState == false &&
+            layerInfo.IsName("Pickup") == false &&
+            layerInfo.IsName("Throw") == false)
         {
             nowYSpeed = jumpSpeed;
             //切换动作
-            roleAnimator.SetTrigger("jumpTrigger");
+            ChangeAction(E_Action_Type.Jump);
             //切换在地面的状态
-            roleAnimator.SetBool("isGround", false);
+            ChangeRoleIsGround(false);
         }
     }
 
@@ -122,7 +146,7 @@ public class PlayerObject : RoleObject
         //如果当前处于跳跃攻击状态 就不要再触发跳跃攻击
         if (roleAnimator.GetCurrentAnimatorStateInfo(1).IsName("JumpAtk") == false)
         {
-            roleAnimator.SetTrigger("jumpAtkTrigger");
+            ChangeAction(E_Action_Type.JumpAtk);
         }
     }
 
@@ -143,7 +167,7 @@ public class PlayerObject : RoleObject
         //目的是避免点击事件间隔和动画时间过短导致的重复播放问题
 
         //方式1 触发条件去处理
-        roleAnimator.SetTrigger("atk1Trigger");
+        ChangeAction(E_Action_Type.Atk);
 
         //方式2 使用int累加来处理
         //让计数清零
@@ -168,7 +192,8 @@ public class PlayerObject : RoleObject
         if (roleAnimator.GetBool("isDefend"))
             return;
 
-        roleAnimator.SetTrigger("footAtkTrigger");
+        //切换腿部攻击
+        ChangeAction(E_Action_Type.FootAtk);
 
         CancelInvoke(nameof(DelayClearFootAtkCount));
         footAtkCount++;
@@ -285,7 +310,9 @@ public class PlayerObject : RoleObject
             case KeyCode.B:
                 //Wound(.2f);
                 //Wound(1f);
-                HitFly(-10f,10f);
+                //HitFly(-10f,10f);
+                //PickUp();
+                Throw();
                 break;
         }
     }
