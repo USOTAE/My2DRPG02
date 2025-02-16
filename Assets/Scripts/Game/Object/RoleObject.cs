@@ -19,11 +19,14 @@ public class RoleObject : MonoBehaviour
     protected Animator roleAnimator;
     //身体子对象
     protected Transform bodyTransform;
+    //影子对象
+    protected Transform shadowTransform;
 
     protected virtual void Awake()
     {
         //多个子对象时先找到目标子对象
         bodyTransform = this.transform.Find("Role");
+        shadowTransform = this.transform.Find("Shadow");
         roleSprite = bodyTransform.GetComponentInChildren<SpriteRenderer>();
         roleAnimator = this.GetComponentInChildren<Animator>();
     }
@@ -37,9 +40,17 @@ public class RoleObject : MonoBehaviour
             this.transform.Translate(moveDir.normalized * speed * Time.deltaTime);
             //控制玩家转向 不考虑0 解决松开按键后的强制转向问题
             if (moveDir.x > 0)
+            {
                 roleSprite.flipX = false;
+                //shadowTransform.localPosition = Vector3.right * 0.04f;
+                shadowTransform.localPosition = new Vector3(-0.04f, -1.2f);
+            }
             else if (moveDir.x < 0)
+            {
                 roleSprite.flipX = true;
+                //shadowTransform.localPosition = Vector3.right * -0.04f;
+                shadowTransform.localPosition = new Vector3(0.04f, -1.2f);
+            }
         }
 
         //是否移动

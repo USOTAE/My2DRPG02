@@ -87,6 +87,10 @@ public class PlayerObject : RoleObject
     /// </summary>
     public void Wound(float hitTime)
     {
+        //如果受伤时是击飞状态 不需要再处理受伤的动作逻辑
+        if (roleAnimator.GetBool("isHitFly"))
+            return;
+
         //如果处于受伤状态 又受伤 需要把上一次延时函数取消
         CancelInvoke(nameof(DelayClearHit));
         //切换受伤动作
@@ -103,6 +107,17 @@ public class PlayerObject : RoleObject
         //如果已经在击飞状态 直接返回 不能再被击飞
         if (roleAnimator.GetBool("isHitFly"))
             return;
+
+        //如果当前是受伤状态 击飞的优先级高于它 需要改变状态
+        if (roleAnimator.GetBool("isHit"))
+        {
+            //取消延迟清除受伤状态
+            CancelInvoke(nameof(DelayClearHit));
+            //直接清除受伤状态
+            roleAnimator.SetBool("isHit", false);
+        }
+
+
         //切换击飞动作
         ChangeAction(E_Action_Type.HitFly);
         //改变玩家不在地面
@@ -307,11 +322,16 @@ public class PlayerObject : RoleObject
                 Jump();
                 break;
             //测试按键
-            case KeyCode.B:
-                //Wound(.2f);
-                //Wound(1f);
-                //HitFly(-10f,10f);
-                //PickUp();
+            case KeyCode.Alpha1:
+                Wound(1f);
+                break;
+            case KeyCode.Alpha2:
+                HitFly(-10f,10f);
+                break;
+            case KeyCode.Alpha3:
+                PickUp();
+                break;
+            case KeyCode.Alpha4:
                 Throw();
                 break;
         }
