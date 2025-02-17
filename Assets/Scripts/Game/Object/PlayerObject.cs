@@ -25,6 +25,7 @@ public class PlayerObject : RoleObject
     /// </summary>
     public override void Dead()
     {
+        ChangeAction(E_Action_Type.Dead);
     }
 
     /// <summary>
@@ -87,6 +88,9 @@ public class PlayerObject : RoleObject
         //1 根据状态判断 
         //2 根据条件判断
         //不满足攻击的条件直接返回
+        //因为格挡动作的切换方式是通过按键触发
+        //按下格挡键时 如果不停按攻击 攻击相关条件会改变
+        //松开格挡的一瞬间就会播放攻击动画
         if (roleAnimator.GetBool("isDefend"))
             return;
 

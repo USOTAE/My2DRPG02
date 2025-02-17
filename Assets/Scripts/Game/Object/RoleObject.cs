@@ -219,6 +219,9 @@ public abstract class RoleObject : MonoBehaviour
             case E_Action_Type.HitFly:
                 roleAnimator.SetBool("isHitFly", true);
                 break;
+            case E_Action_Type.Dead:
+                roleAnimator.SetBool("isDead", true);
+                break;
             default:
                 break;
         }
@@ -245,7 +248,8 @@ public abstract class RoleObject : MonoBehaviour
                 layerInfo2.IsName("Hit") ||
                 layerInfo2.IsName("HitFly") ||
                 layerInfo2.IsName("Pickup") ||
-                layerInfo2.IsName("Throw"))
+                layerInfo2.IsName("Throw") ||
+                roleAnimator.GetBool("isDead"))
                 return false;
 
             return true;
@@ -296,5 +300,9 @@ public enum E_Action_Type
     /// </summary>
     Throw,
     Pickup,
-    Defend
+    Defend,
+    /// <summary>
+    /// À¿Õˆ
+    /// </summary>
+    Dead
 }
