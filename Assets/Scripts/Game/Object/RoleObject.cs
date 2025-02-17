@@ -5,13 +5,21 @@ using UnityEngine;
 /// <summary>
 /// 角色对象基类 之后的怪物 玩家都继承它
 /// </summary>
-public class RoleObject : MonoBehaviour
+public abstract class RoleObject : MonoBehaviour
 {
     //角色的移动方向
     protected Vector2 moveDir = Vector2.zero;
 
+    //玩家跳跃初速度
+    public float jumpSpeed = 10;
+    //重力加速度
+    public float gSpeed = 9.8f;
     //移动速度
     public int speed = 5;
+    //当前竖直上抛的速度
+    protected float nowYSpeed;
+    //击退速度
+    protected float nowXSpeed;
 
     //身体sprite
     protected SpriteRenderer roleSprite;
@@ -32,6 +40,28 @@ public class RoleObject : MonoBehaviour
     }
 
     protected virtual void Update()
+    {
+        //处理移动
+        CheckMove();
+        //处理击飞和跳跃
+        CheckJumpOrHitFly();
+
+    }
+
+    /// <summary>
+    /// 都有攻击行为
+    /// </summary>
+    public abstract void Atk();
+
+    /// <summary>
+    /// 都有死亡方法
+    /// </summary>
+    public abstract void Dead();
+
+    /// <summary>
+    /// 检测玩家移动相关逻辑
+    /// </summary>
+    protected void CheckMove()
     {
         //在移动前加判断 满足移动条件才去移动
         if (CanMoving)
@@ -58,7 +88,103 @@ public class RoleObject : MonoBehaviour
             ChangeAction(E_Action_Type.Idle);
         else
             ChangeAction(E_Action_Type.Move);
+    }
 
+    /// <summary>
+    /// 检测处理 跳跃或者击飞逻辑
+    /// </summary>
+    protected void CheckJumpOrHitFly()
+    {
+        //处理 跳跃逻辑
+        //不是在地面上 就可以跳跃
+        if (roleAnimator.GetBool("isGround") == false)
+        {
+
+            //跳跃身体对象
+            bodyTransform.Translate(Vector2.up * nowYSpeed * Time.deltaTime);
+            //竖直上抛 下落逻辑 速度变化
+            //v = v - gt
+            nowYSpeed -= gSpeed * Time.deltaTime;
+
+            //我们判断高度是否小于等于0 即可判断是否落地
+            //注意 一定不是判断 == 0 因为是 - 帧间隔时间*速度 大部分情况都不会刚刚等于0
+            //注意使用的是localPosition 了解Position和localPosition
+            if (bodyTransform.localPosition.y <= 0)
+            {
+                //放置到地面
+                bodyTransform.localPosition = Vector2.zero;
+                //改变地面标识
+                ChangeRoleIsGround(true);
+
+                //落地后 不管击退多厉害 都得停下来
+                nowXSpeed = 0;
+                //应该让他延迟站起来
+                Invoke(nameof(DelayClearHitFly), 2f);
+            }
+        }
+
+        if (nowXSpeed != 0)
+        {
+            this.transform.Translate(Vector2.right * nowXSpeed * Time.deltaTime);
+        }
+    }
+
+    /// <summary>
+    /// 受伤方法
+    /// </summary>
+    public virtual void Wound(float hitTime)
+    {
+        //如果受伤时是击飞状态 不需要再处理受伤的动作逻辑
+        if (roleAnimator.GetBool("isHitFly"))
+            return;
+
+        //如果处于受伤状态 又受伤 需要把上一次延时函数取消
+        CancelInvoke(nameof(DelayClearHit));
+        //切换受伤动作
+        ChangeAction(E_Action_Type.Hit);
+        //延时函数 处理过一段时间结束受伤状态
+        Invoke(nameof(DelayClearHit), hitTime);
+    }
+
+    /// <summary>
+    /// 击飞方法
+    /// </summary>
+    public virtual void HitFly(float xSpeed, float ySpeed)
+    {
+        //如果已经在击飞状态 直接返回 不能再被击飞
+        if (roleAnimator.GetBool("isHitFly"))
+            return;
+
+        //如果当前是受伤状态 击飞的优先级高于它 需要改变状态
+        if (roleAnimator.GetBool("isHit"))
+        {
+            //取消延迟清除受伤状态
+            CancelInvoke(nameof(DelayClearHit));
+            //直接清除受伤状态
+            roleAnimator.SetBool("isHit", false);
+        }
+
+
+        //切换击飞动作
+        ChangeAction(E_Action_Type.HitFly);
+        //改变玩家不在地面
+        ChangeRoleIsGround(false);
+        //初始竖直上抛的速度
+        nowYSpeed = ySpeed;
+        nowXSpeed = xSpeed;
+    }
+
+    private void DelayClearHit()
+    {
+        roleAnimator.SetBool("isHit", false);
+    }
+
+    /// <summary>
+    /// 延迟起身
+    /// </summary>
+    private void DelayClearHitFly()
+    {
+        roleAnimator.SetBool("isHitFly", false);
     }
 
     /// <summary>
